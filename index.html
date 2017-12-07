@@ -1,0 +1,93 @@
+<html>
+
+<head>
+  <link rel="stylesheet" type="text/css" href="index.css">
+  <script src="https://unpkg.com/vue"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body>
+
+  <div id="app">
+
+    <div id="calculator" class="calculator">
+
+      <div v-if="result === ''">
+        <button id="result"></button>
+      </div>
+      <div v-else-if="result === false">
+        <button id="result" class="badresult">
+          <i class="fa fa-times" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div v-else-if="result === true">
+        <button id="result" class="goodresult">
+          <i class="fa fa-check" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <div id="viewer" class="viewer">{{number}}</div>
+
+      <button class="num" v-on:click="press">7</button>
+      <button class="num" v-on:click="press">8</button>
+      <button class="num" v-on:click="press">9</button>
+      <button class="num" v-on:click="calculateIsPrime">=</button>
+
+      <button class="num" v-on:click="press">4</button>
+      <button class="num" v-on:click="press">5</button>
+      <button class="num" v-on:click="press">6</button>
+      <button class="num" v-on:click="clear">C</button>
+
+      <button class="num" v-on:click="press">1</button>
+      <button class="num" v-on:click="press">2</button>
+      <button class="num" v-on:click="press">3</button>
+      <button class="num" v-on:click="press">0</button>
+    </div>
+
+  </div>
+
+  <script>
+    // Vue app here
+    var app = new Vue({
+      el: "#app",
+      data: {
+        number: '0',
+        result: ''
+      },
+      methods: {
+        press: function (event) {
+          let digit = event.target.innerText;
+          this.number = parseInt(this.number + event.target.innerText);
+        },
+        clear: function (event) {
+          this.number = '0';
+          this.result = '';
+        },
+        calculateIsPrime: function (event) {
+          this.result = isPrime(this.number);
+          console.log(this.result);
+        }
+      }
+    })
+
+    function isPrime(number) {
+
+      // 0 and 1 are not prime
+      if (number < 2) {
+        return false;
+      }
+      // Sieve for positive numbers above 1
+      else {
+        // Takes all numbers that are half of x and below because they are possible factors
+        for (var i = 2; i < number / 2 + 1; i++) {
+          if (number % i == 0)
+            return false;
+        }
+
+        return true;
+      }
+    }
+  </script>
+</body>
+
+</html>
