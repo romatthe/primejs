@@ -2,6 +2,10 @@
 
 ## Pseudocode
 
+Op wikipedia vinden we een stukje pseudocode terug voor de Zeef van Eratosthenes:
+
+https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes
+
 ```
  Input: an integer n > 1.
  
@@ -18,60 +22,81 @@
 
 ## Directe interpretatie in JavaScript
 
-Volgende functie is een heel directe inpretatie van bovenstaande pseudocode waar x het getal is waarvoor we willen bepalen of het een priemgetal is
+Volgende functie is een heel directe inpretatie van bovenstaande pseudocode waar `number` het getal `n` is uit bovenstaande pseudocode.
 
 ```javascript
-function isPrime(x) {
-    if (x < 2) {            // We willen enkel positieve getallen, en 0 en 1 zijn geen priemgetallen
-        return false;
-    }
-    else {                  // Hieronder behandelen we alle andere gevallen
-        possibleFactors = [];
-        factors = [];
-        matchingFactors = [];
+function sieve(number) {
+    let numbers = Array(number + 1).fill(true);
 
-        // Hier berekenen we alle mogelijke mogelijke factoren voor x
-        for (i = 2; i < (x / 2) + 1; i++) {         // We bereknen elke mogelijke factor door te starten met het getal 2. Vervolgens verhogen we het getal telkens met 1. We blijven dit doen zolang dat getal kleiner is dan `(x / 2) + 1`
-            possibleFactors.push(i);                // We bewaren deze factoren als een lijst in `possibleFactors`
-        }
-
-        // Vervolgens nemen we de factoren en delen we telkens x door de respectievelijke factor
-        for (i = 0; i < possibleFactors.length; i++) {  // Hier overlopen we de volledige lijst met factoren, delen 
-            factors.push(x / possibleFactors[i]);       // We slaan telkens het resultaat op van x gedeeld door de respectievelijke factor in een lijst genaamd `factors`
-        }
-
-        // Checks if the x divided by the possible factors is equal to any of the other possible factors
-        // Daarna kijken we of er resultaten in `factors` zijn die gelijk zijn aan een van de factoren
-        for (i in possibleFactors) {
-            if (zFactors.indexOf(possibleFactors[i]) !== -1) {
-                matchingFactors.push(possibleFactors[i]);  // Zoja, dan slaan we die op in de lijst `matchingFactors`
+    for (i = 2; i <= Math.sqrt(number); i++) {
+        if (numbers[i] === true) {
+            for (j = i * 2; j < number; j+= i) {
+                numbers[j] = false;
             }
         }
-
-        // Indien we op zijn minst 1 van deze factoren hebben opgeslagen in `matchingFactors` kunnen we besluiten dat x een priemgetal is
-        return (matchingFactors.length == 0);
     }
+
+    return numbers;
 }
 ```
 
-De bovenstaande voorbeeldimplementatie is niet bijzonder efficient, en de leesbaarheid is eveneens betwistbaar. We kunnen de functie immers terk vereenvoudigen
+De functie `sieve` geeft ons een volledige lijst terug van alle mogelijke priemgetallen kleiner of gelijk aan `number`.
+
+Indien we aan de hand van de zeef willen bepalen of ons getal `number` daadwerkelijk een priemgetal is, volstaat het om het volgende toe te voegen.
+
+```javascript
+function sieve(number) {
+    let numbers = Array(number + 1).fill(true);
+
+    for (i = 2; i <= Math.sqrt(number); i++) {
+        if (numbers[i] === true) {
+            for (j = i * 2; j < number; j+= i) {
+                numbers[j] = false;
+            }
+        }
+    }
+
+    return numbers;
+}
+
+function isPrime(number) {
+    return sieve[number];
+}
+```
+
+De functie `isPrime` maakt gebruik van de resulterende zeef die we terugkrijgen van de `sieve` functie, en kijkt vervolgens naar het resultaat geindexeerd op de plaats van de waarde van `number` (overigens het allerlaatste resultaat in de lijst).
+
+Het is uiteraard verleidelijk om een vereenvoudigde versie hiervan te schrijven, bijvoorbeeld:
 
 ```javascript
 function isPrime(number) {
-    if (number < 2) {                   // (1)
-        return false;               
-    }
-    else {                              // (2)
-        // Takes all numbers that are half of x and below because they are possible factors
+      if (number < 2) {
+        return false;
+      }
+      else {
         for (var i = 2; i < number / 2 + 1; i++) {
-            if (number % i == 0)
-                return false;
+          if (number % i == 0)
+            return false;
         }
 
-    return true;
-}
+        return true;
+      }
+    }
 ```
 
-1. 0 en 1 zijn geen priemgetallen. We filteren deze er op voorhand uit. Daarnaast behandelen we enkel 
-2. Alle andere gevallen handelen we hieronder af
+Zodra we echter gebruikt maken van `%` (de operator voor het bereken van de rest van een deling in JavaScript), kunnen we niet meer zeggen dat we gebruik aan het maken zijn van de klassieke Zeef van Eratosthenes.
+
+Dit is een klassiek probleem, want het is gemakkelijk om talloze voorbeelden online voor het berekenen van priemgetallen in allerlei programmeertalen en zogezegde implementaties va de Zeef gebruiken deze techniek.
+
+Een interessante paper hierover is bijvoorbeeld: https://www.cs.hmc.edu/~oneill/papers/Sieve-JFP.pdf
+
+Hierin wordt weerlegd dat een klassiek voorbeeld van de Zeef in de programmeertaalH askell eigenlijk helemaal niet correct is.
+
+Een goed voorbeeld in een functionele taal zoals Haskell is het volgende:
+
+```haskell
+primes = sieve [2..] 
+            where
+                sieve (p:xs) = p : sieve (minus xs [p, p+p..])
+```
 
